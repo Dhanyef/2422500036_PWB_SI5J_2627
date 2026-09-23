@@ -3,4 +3,4 @@ Repository Latihan Pertemuan-1 sampai dengan Pertemuan-16 Matakuliah Pemrograman
 Matakuliah Pemrograman Web Dasar<br>
 Tahun Ajaran 2026/2027
 Semester Gasal<br>
-![Logo ISBAL] (Logo_ISB_atma_luhur_final.png)
+![logo](logoisbal.png)
