@@ -95,7 +95,7 @@ class Produk_controller extends CI_Controller
                     $filename = $uploadData['file_name'];
                     $data = [
                         'nama_gambar' => $filename,
-                        'produk_id' => $id_produk
+                        'id_produk' => $id_produk
                     ];
                     $this->produk_gambar_model->tambah($data);
                 }
@@ -174,5 +174,50 @@ class Produk_controller extends CI_Controller
         }
         redirect('admin/produk');
     }
+        public function hapus_produk($id)
+    {
+        // check apakah ada produk
+        $produk = $this->produk_model->get_by_id($id);
+        if ($produk) {
+            // ambil data gambar
+            $list_gambar = $this->produk_gambar_model->get_by_id_produk($id);
+            foreach ($list_gambar as $gambar) {
+                $id_gambar = $gambar['id_gambar'];
+                $nama_gambar = $gambar['nama_gambar'];
+                // hapus gambar di database
+                $this->produk_gambar_model->hapus($id_gambar);
+                // hapus gambar di file
+                $path = './uploads/produk/' . $nama_gambar;
+                unlink($path);
+            }
+            // hapus produk di database
+            $this->produk_model->hapus($id);
+            $this->session->set_flashdata('message', '
+            <div class="alert alert-success d-flex align-items-center alert-dismissible fade show" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
+                    <use xlink:href="#check-circle-fill" />
+                </svg>
+                <div>
+                    Berhasil menghapus produk!!
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            ');
+        redirect('admin/produk');
+    } else {
+        $this->session->set_flashdata('message', '
+        <div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
+                <use xlink:href="#exclamation-triangle-fill" />
+            </svg>
+            <div>
+                produk tidak ditemukan!!
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        ');
+        redirect('admin/produk');
+    }
+}
 
 }

@@ -11,7 +11,7 @@ class Produk_gambar_model extends CI_Model
         $this->db->insert($this->_table, $data);
     }
 
-    public function get_by_produk_id($id)
+    public function get_by_id_produk($id)
     {
         $this->db->where('id_produk', $id);
         $query = $this->db->get($this->_table);

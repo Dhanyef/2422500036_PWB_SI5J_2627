@@ -60,8 +60,9 @@
                                                 <td><?= $produk['stok'] ?></td>
                                                 <td><?= $produk['deskripsi'] ?></td>
                                                 <td>
-                                                    <a href="<?= base_url('admin/produk/ubah/') ?><?= $produk['id_produk'] ?>"><span class="badge bg-success">Ubah</span></a>
-                                                    <a href="<?= base_url('admin/produk/hapus/') ?><?= $produk['id_produk'] ?>"><span class="badge bg-danger">Hapus</span></a>
+                                                <td>
+                                                <a href="<?= base_url('admin/produk/ubah/') ?><?= $produk['id_produk'] ?>"><span class="badge bg-success">Ubah</span></a>
+                                                <a href="<?= base_url('admin/produk/hapus/') ?><?= $produk['id_produk'] ?>"><span class="badge bg-danger">Hapus</span></a>
                                                 </td>
                                             </tr>
                                         <?php $no++;
