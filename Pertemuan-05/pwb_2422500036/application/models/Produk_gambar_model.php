@@ -13,7 +13,7 @@ class Produk_gambar_model extends CI_Model
 
     public function get_by_produk_id($id)
     {
-        $this->db->where('produk_id', $id);
+        $this->db->where('id_produk', $id);
         $query = $this->db->get($this->_table);
         return $query->result_array();
     }
