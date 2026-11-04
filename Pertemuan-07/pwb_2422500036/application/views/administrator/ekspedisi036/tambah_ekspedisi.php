@@ -29,14 +29,15 @@
             </div>
             <div class="card-body">
               <form method="post" action=""> 
-                <div class="mb-3">
-                  <label for="id_ekspedisi036" class="form-label">ID Ekspedisi</label>
-                  <input type="text" class="form-control" name="id_ekspedisi036" id="id_ekspedisi036" required>
-                </div>
                 
                 <div class="mb-3">
-                  <label for="nama_ekspedisi036" class="form-label">Nama Ekspedisi</label>
-                  <input type="text" class="form-control" name="nama_ekspedisi036" id="nama_ekspedisi036" required>
+                  <label for="jenis_layanan036" class="form-label">Nama Ekspedisi</label>
+                  <select class="form-control" name="nama_ekspedisi036" id="nama_ekspedisi036" required>
+                    <option value="">-- Pilih Jenis Layanan --</option>
+                    <option value="JNT">JNT</option>
+                    <option value="JNE">JNE</option>
+                    <option value="SPX">SPX</option>
+                  </select>
                 </div>
                 
                 <div class="mb-3">
@@ -67,7 +68,7 @@
                   <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save mr-1"></i> Simpan
                   </button>
-                  <a href="<?= base_url('admin/ekspedisi036') ?>" class="btn btn-danger">
+                  <a href="<?= base_url('admin/ekspedisi') ?>" class="btn btn-danger">
                     <i class="fas fa-arrow-left mr-1"></i> Kembali
                   </a>
                 </div>

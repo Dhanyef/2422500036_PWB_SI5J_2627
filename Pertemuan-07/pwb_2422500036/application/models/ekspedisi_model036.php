@@ -13,12 +13,10 @@ class Ekspedisi_model036 extends CI_Model
         return $query->result_array();
     }
 
-    // PERBAIKAN DI SINI: Menggunakan affected_rows() agar mendukung input ID Manual / Auto-Increment
     public function tambah($data)
     {
         $this->db->insert($this->_table, $data);
         
-        // Mengembalikan nilai true jika data berhasil masuk (minimal 1 baris terpengaruh)
         return ($this->db->affected_rows() > 0);
     }
 

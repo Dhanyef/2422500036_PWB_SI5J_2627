@@ -28,13 +28,13 @@
                             <p class="card-text">
                                 <form method="post" enctype="multipart/form-data">
                                 <div class="mb-3">
-                                    <label for="nama_produk" class="form-label">Nama produk</label>
-                                    <input type="text" class="form-control" name="nama_produk" id="nama_produk" aria-describedby="Nama produk">
+                                    <label for="nama_produk" class="form-label">Judul Buku</label>
+                                    <input type="text" class="form-control" name="nama_produk" id="nama_produk" aria-describedby="Judul Buku">
                                     <small class="text-danger"><em><?= form_error('nama_produk') ?></em></small>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="kategori_produk" class="form-label">Kategori produk</label>
-                                    <select class="form-select" name="kategori_produk" id="kategori_produk" class="form-control">
+                                    <label for="kategori_produk" class="form-label">Kategori</label>
+                                    <select class="form-select" name="kategori_produk" id="kategori_produk">
                                         <option value="" selected>-- pilih kategori --</option>
                                         <?php foreach ($list_kategori as $kategori) : ?>
                                             <option value="<?= $kategori['id_kategori'] ?>"><?= $kategori['nama'] ?></option>
@@ -50,18 +50,33 @@
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="stok_produk" class="form-label">Stok produk</label>
-                                    <input type="number" class="form-control" name="stok_produk" id="stok_produk" aria-describedby="Stok produk">
+                                    <label for="stok_produk" class="form-label">Stok</label>
+                                    <input type="number" class="form-control" name="stok_produk" id="stok_produk" aria-describedby="Stok">
                                     <small class="text-danger"><em><?= form_error('stok_produk') ?></em></small>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="gambar_produk" class="form-label">Gambar Produk</label>
-                                    <input class="form-control" type="file" id="gambar_produk" name="gambar_produk[]" multiple>
+                                    <label for="penerbit" class="form-label">Penerbit</label>
+                                    <input type="text" class="form-control" name="penerbit" id="penerbit" aria-describedby="Penerbit">
+                                    <small class="text-danger"><em><?= form_error('penerbit') ?></em></small>
                                 </div>
-
                                 <div class="mb-3">
-                                    <label for="deskripsi_produk" class="form-label">Deskripsi</label>
-                                    <textarea name="deskripsi_produk" id="deskripsi_produk" cols="30" rows="10" class="form-control"></textarea>
+                                    <label for="tahun_terbit" class="form-label">Tahun Terbit</label>
+                                    <input type="number" class="form-control" name="tahunterbit" id="tahunterbit" min="1900" max="2099" aria-describedby="Tahun Terbit">
+                                    <small class="text-danger"><em><?= form_error('tahunterbit') ?></em></small>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="isbn" class="form-label">ISBN</label>
+                                    <input type="text" class="form-control" name="isbn" id="isbn" aria-describedby="ISBN">
+                                    <small class="text-danger"><em><?= form_error('isbn') ?></em></small>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="gambar_produk" class="form-label">Gambar Produk</label>
+                                    <input class="form-control" type="file" id="gambar_produk" name="gambar_produk" multiple>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="sinopsis_produk" class="form-label">Sinopsis</label>
+                                    <textarea name="sinopsis_produk" id="sinopsis_produk" cols="30" rows="10" class="form-control"></textarea>
+                                    <small class="text-danger"><em><?= form_error('sinopsis_produk') ?></em></small>
                                 </div>
                                 <button type="submit" class="btn btn-primary">Tambah</button>
                                 <a href="<?= base_url('admin/produk') ?>" class="btn btn-danger">Kembali</a>
@@ -69,14 +84,8 @@
                             </p>
                         </div>
                     </div>
-
                 </div>
-                <!-- /.col-md-6 -->
-
             </div>
-            <!-- /.row -->
-        </div><!-- /.container-fluid -->
+        </div>
     </div>
-    <!-- /.content -->
 </div>
-<!-- /.content-wrapper -->

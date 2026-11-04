@@ -1,273 +1,318 @@
+
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Produk_controller extends CI_Controller
 {
-
     public function __construct()
     {
         parent::__construct();
+
         is_admin_logged_in();
-        // Load model
+
         $this->load->model('produk_model');
         $this->load->model('produk_kategori_model');
         $this->load->model('produk_gambar_model');
     }
 
+    // Menampilkan daftar produk
     public function index()
     {
         $data['title'] = 'Daftar Produk';
-        $data['list_produk'] = $this->produk_model->get_all();
+        $data['list_produk'] = $this->produk_model->get_all_produk();
+
         $this->load->view('administrator/templates/header', $data);
         $this->load->view('administrator/templates/sidebar');
         $this->load->view('administrator/produk/index', $data);
         $this->load->view('administrator/templates/footer');
     }
-    public function hapus_gambar($id)
-    {
-        // 1. Cari data gambar di tabel produk_gambar berdasarkan id_produk
-        $this->db->where('id_produk', $id);
-        $gambar = $this->db->get('produk_gambar')->row_array();
 
-        if ($gambar) {
-            $nama_file = $gambar['nama_gambar']; // Memakai kolom 'nama_gambar'
-            $path = './assets/upload/produk/' . $nama_file;
-            
-            // 2. Hapus file fisik dari folder assets jika filenya ada
-            if (file_exists($path) && !empty($nama_file)) {
-                unlink($path);
-            }
-
-            // 3. Hapus baris data gambar ini dari tabel produk_gambar
-            $this->db->where('id_produk', $id);
-            $this->db->delete('produk_gambar');
-
-            $this->session->set_flashdata('success', 'Gambar berhasil dihapus.');
-            redirect('admin/produk/ubah/' . $id);
-        } else {
-            $this->session->set_flashdata('error', 'Gambar tidak ditemukan.');
-            redirect('admin/produk/ubah/' . $id);
-        }
-    }
-
-
-        public function tambah_produk()
+    // Menambahkan produk
+    public function tambah_produk()
     {
         $data['title'] = 'Tambah Produk';
-        $this->form_validation->set_rules('nama_produk', 'Nama produk', 'required');
-        $this->form_validation->set_rules('kategori_produk', 'Kategori', 'required');
+
+        $this->form_validation->set_rules(
+            'nama_produk',
+            'Nama produk',
+            'required'
+        );
+
+        $this->form_validation->set_rules(
+            'kategori_produk',
+            'Kategori',
+            'required'
+        );
+
         if ($this->form_validation->run() !== FALSE) {
             $this->_simpan_produk();
         } else {
             $data['list_kategori'] = $this->produk_kategori_model->get_all();
+
             $this->load->view('administrator/templates/header', $data);
             $this->load->view('administrator/templates/sidebar');
             $this->load->view('administrator/produk/tambah_produk', $data);
             $this->load->view('administrator/templates/footer');
         }
-        
     }
-        private function _simpan_produk()
+
+    // Menyimpan produk baru
+    private function _simpan_produk()
     {
         $data = [
-            'nama' => ucwords($this->input->post('nama_produk')),
-            'id_kategori ' => $this->input->post('kategori_produk'),
-            'harga' => $this->input->post('harga_produk'),
-            'stok' => $this->input->post('stok_produk'),
-            'deskripsi' => ucfirst($this->input->post('deskripsi_produk')),
-            'penerbit' => $this->input->post('penerbit'),
-            'tahunterbit' => $this->input->post('tahunterbit'),
-            'isbn' => $this->input->post('isbn')
+            'nama'         => ucwords($this->input->post('nama_produk')),
+            'id_kategori'  => $this->input->post('kategori_produk'),
+            'harga'        => $this->input->post('harga_produk'),
+            'stok'         => $this->input->post('stok_produk'),
+            'sinopsis'     => ucfirst($this->input->post('sinopsis_produk')),
+            'penerbit'     => $this->input->post('penerbit'),
+            'tahunterbit'  => $this->input->post('tahunterbit'),
+            'isbn'         => $this->input->post('isbn')
         ];
 
-        
         $id_produk = $this->produk_model->tambah($data);
-     
 
-        $count = count($_FILES['gambar_produk']['name']);
-        if ($count > 0) {
+        if (!empty($_FILES['gambar_produk']['name'][0])) {
+            $count = count($_FILES['gambar_produk']['name']);
 
             $errors = $this->_produk_gambar_upload($count, $id_produk);
-            if ($errors) {
-                $this->session->set_flashdata('message', '
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <div>Produk tersimpan, tetapi gambar gagal diunggah:<br>' . implode('<br>', $errors) . '</div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                ');
+
+            if (!empty($errors)) {
+                $this->session->set_flashdata(
+                    'message',
+                    '<div class="alert alert-danger">
+                        Produk tersimpan, tetapi gambar gagal diunggah:<br>'
+                        . implode('<br>', $errors) .
+                    '</div>'
+                );
+
                 redirect('admin/produk');
+                return;
             }
         }
-        $this->session->set_flashdata('message', '
-            <div class="alert alert-success d-flex align-items-center alert-dismissible fade show" role="alert">
-                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
-                    <use xlink:href="#check-circle-fill" />
-                </svg>
-                <div>
-                    Berhasil menambahkan produk!!
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        ');
+
+        $this->session->set_flashdata(
+            'message',
+            '<div class="alert alert-success">
+                Berhasil menambahkan produk!
+            </div>'
+        );
 
         redirect('admin/produk');
     }
-        private function _produk_gambar_upload($count, $id_produk)
+
+    // Upload beberapa gambar produk
+    private function _produk_gambar_upload($count, $id_produk)
     {
         $errors = [];
 
-        
-        if (!is_dir('uploads/produk/')) {
-            mkdir('uploads/produk/', 0777, true);
+        $folder = './uploads/produk/';
+
+        if (!is_dir($folder)) {
+            mkdir($folder, 0755, true);
         }
+
         $this->load->library('upload');
 
         for ($i = 0; $i < $count; $i++) {
-            if (!empty($_FILES['gambar_produk']['name'][$i])) {
-                $_FILES['file']['name'] = $_FILES['gambar_produk']['name'][$i];
-                $_FILES['file']['type'] = $_FILES['gambar_produk']['type'][$i];
-                $_FILES['file']['tmp_name'] = $_FILES['gambar_produk']['tmp_name'][$i];
-                $_FILES['file']['error'] = $_FILES['gambar_produk']['error'][$i];
-                $_FILES['file']['size'] = $_FILES['gambar_produk']['size'][$i];
 
-                $config['upload_path'] = 'uploads/produk/';
-                $config['allowed_types'] = 'jpg|jpeg|png|gif';
-                $config['max_size'] = '5000';
-                // $config['file_name'] = $_FILES['gambar_produk']['name'][$i];
-                $config['file_name'] = "produk-" . $id_produk . '-' . $i;
+            if (
+                empty($_FILES['gambar_produk']['name'][$i]) ||
+                $_FILES['gambar_produk']['error'][$i] == UPLOAD_ERR_NO_FILE
+            ) {
+                continue;
+            }
 
-                $this->upload->initialize($config);
+            $_FILES['file'] = [
+                'name'     => $_FILES['gambar_produk']['name'][$i],
+                'type'     => $_FILES['gambar_produk']['type'][$i],
+                'tmp_name' => $_FILES['gambar_produk']['tmp_name'][$i],
+                'error'    => $_FILES['gambar_produk']['error'][$i],
+                'size'     => $_FILES['gambar_produk']['size'][$i]
+            ];
 
-                if ($this->upload->do_upload('file')) {
-                    $uploadData = $this->upload->data();
-                    $filename = $uploadData['file_name'];
-                    $data = [
-                        'nama_gambar' => $filename,
-                        'id_produk' => $id_produk
-                    ];
-                    $this->produk_gambar_model->tambah($data);
-                } else {
-                    $errors[] = $_FILES['gambar_produk']['name'][$i] . ': ' . $this->upload->display_errors('', '');
-                }
+            $config = [
+                'upload_path'   => $folder,
+                'allowed_types' => 'jpg|jpeg|png|gif',
+                'max_size'      => 5000,
+                'file_name'     => 'produk-' . $id_produk . '-' . $i
+            ];
+
+            $this->upload->initialize($config);
+
+            if ($this->upload->do_upload('file')) {
+
+                $uploadData = $this->upload->data();
+
+                $data = [
+                    'nama_gambar' => $uploadData['file_name'],
+                    'id_produk'   => $id_produk
+                ];
+
+                $this->produk_gambar_model->tambah($data);
+
+            } else {
+                $errors[] = $_FILES['gambar_produk']['name'][$i]
+                    . ': ' . $this->upload->display_errors('', '');
             }
         }
+
         return $errors;
     }
+
+    // Mengubah produk
     public function ubah_produk($id)
     {
-        
         $produk = $this->produk_model->get_by_id($id);
+
         if ($produk) {
-            $this->form_validation->set_rules('nama_produk', 'Nama produk', 'required');
-            $this->form_validation->set_rules('kategori_produk', 'Kategori', 'required');
+
+            $this->form_validation->set_rules(
+                'nama_produk',
+                'Nama produk',
+                'required'
+            );
+
+            $this->form_validation->set_rules(
+                'kategori_produk',
+                'Kategori',
+                'required'
+            );
+
             if ($this->form_validation->run() !== FALSE) {
+
                 $this->__ubah_produk($id);
+
             } else {
-                $data['title'] = 'Ubah produk';
+
+                $data['title'] = 'Ubah Produk';
                 $data['produk'] = $produk;
                 $data['list_kategori'] = $this->produk_kategori_model->get_all();
                 $data['gambar_model'] = $this->produk_gambar_model;
+
                 $this->load->view('administrator/templates/header', $data);
                 $this->load->view('administrator/templates/sidebar');
                 $this->load->view('administrator/produk/ubah_produk', $data);
                 $this->load->view('administrator/templates/footer');
             }
+
         } else {
-            $this->session->set_flashdata('message', '
-            <div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert">
-                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
-                    <use xlink:href="#exclamation-triangle-fill" />
-                </svg>
-                <div>
-                    produk tidak ditemukan!!
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            ');
+
+            $this->session->set_flashdata(
+                'message',
+                '<div class="alert alert-danger">
+                    Produk tidak ditemukan!
+                </div>'
+            );
+
             redirect('admin/produk');
         }
     }
+
+    // Proses update produk
     private function __ubah_produk($id)
     {
         $data = [
-            'nama' => ucwords($this->input->post('nama_produk')),
-            'id_kategori' => $this->input->post('kategori_produk'),
-            'harga' => $this->input->post('harga_produk'),
-            'stok' => $this->input->post('stok_produk'),
-            'deskripsi' => ucfirst($this->input->post('deskripsi_produk')),
-            'penerbit' => $this->input->post('penerbit'),
-            'tahunterbit' => $this->input->post('tahunterbit'),
-            'isbn' => $this->input->post('isbn')
+            'nama'         => ucwords($this->input->post('nama_produk')),
+            'id_kategori'  => $this->input->post('kategori_produk'),
+            'harga'        => $this->input->post('harga_produk'),
+            'stok'         => $this->input->post('stok_produk'),
+            'sinopsis'     => ucfirst($this->input->post('sinopsis_produk')),
+            'penerbit'     => $this->input->post('penerbit'),
+            'tahunterbit'  => $this->input->post('tahunterbit'),
+            'isbn'         => $this->input->post('isbn')
         ];
 
         $ubah = $this->produk_model->ubah($data, $id);
 
-        
         $this->load->library('upload');
+
+        // Mengganti gambar lama
         $hasil_ganti = $this->_ganti_gambar($id);
+
+        // Menambahkan gambar baru
         if (!empty($_FILES['gambar_produk']['name'][0])) {
-            $err_baru = $this->_produk_gambar_upload(count($_FILES['gambar_produk']['name']), $id);
-            $hasil_ganti['errors'] = array_merge($hasil_ganti['errors'], $err_baru);
+
+            $count = count($_FILES['gambar_produk']['name']);
+
+            $err_baru = $this->_produk_gambar_upload($count, $id);
+
+            $hasil_ganti['errors'] = array_merge(
+                $hasil_ganti['errors'],
+                $err_baru
+            );
         }
 
-        if ($hasil_ganti['errors']) {
+        if (!empty($hasil_ganti['errors'])) {
+
             $pesan_error = implode('<br>', $hasil_ganti['errors']);
-            $this->session->set_flashdata('message', '
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <div>Gagal mengunggah/mengganti gambar:<br>' . $pesan_error . '</div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            ');
+
+            $this->session->set_flashdata(
+                'message',
+                '<div class="alert alert-danger">
+                    Gagal mengunggah/mengganti gambar:<br>'
+                    . $pesan_error .
+                '</div>'
+            );
+
         } elseif ($ubah || $hasil_ganti['berhasil'] > 0) {
-            $this->session->set_flashdata('message', '
-            <div class="alert alert-success d-flex align-items-center alert-dismissible fade show" role="alert">
-                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
-                    <use xlink:href="#check-circle-fill" />
-                </svg>
-                <div>
-                    Berhasil mengubah produk!!
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            ');
+
+            $this->session->set_flashdata(
+                'message',
+                '<div class="alert alert-success">
+                    Berhasil mengubah produk!
+                </div>'
+            );
+
         } else {
-            $this->session->set_flashdata('message', '
-            <div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert">
-                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
-                    <use xlink:href="#exclamation-triangle-fill" />
-                </svg>
-                <div>
-                    Gagal mengubah produk!!
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            ');
+
+            $this->session->set_flashdata(
+                'message',
+                '<div class="alert alert-danger">
+                    Gagal mengubah produk!
+                </div>'
+            );
         }
+
         redirect('admin/produk');
     }
-    
+
+    // Mengganti gambar lama
     private function _ganti_gambar($id_produk)
     {
-        $hasil = ['berhasil' => 0, 'errors' => []];
+        $hasil = [
+            'berhasil' => 0,
+            'errors'   => []
+        ];
 
-        if (empty($_FILES['ganti_gambar']['name']) || !is_array($_FILES['ganti_gambar']['name'])) {
+        if (
+            empty($_FILES['ganti_gambar']['name']) ||
+            !is_array($_FILES['ganti_gambar']['name'])
+        ) {
             return $hasil;
         }
 
-        $folder = 'uploads/produk/';
+        $folder = './uploads/produk/';
+
         if (!is_dir($folder)) {
-            mkdir($folder, 0777, true);
+            mkdir($folder, 0755, true);
         }
 
         foreach ($_FILES['ganti_gambar']['name'] as $id_gambar => $nama) {
-            
-            if (empty($nama) || $_FILES['ganti_gambar']['error'][$id_gambar] === UPLOAD_ERR_NO_FILE) {
+
+            if (
+                empty($nama) ||
+                $_FILES['ganti_gambar']['error'][$id_gambar] == UPLOAD_ERR_NO_FILE
+            ) {
                 continue;
             }
 
-           
             $gambar_lama = $this->produk_gambar_model->get_by_id($id_gambar);
-            if (!$gambar_lama || $gambar_lama['id_produk'] != $id_produk) {
+
+            if (
+                !$gambar_lama ||
+                $gambar_lama['id_produk'] != $id_produk
+            ) {
                 continue;
             }
 
@@ -276,75 +321,124 @@ class Produk_controller extends CI_Controller
                 'type'     => $_FILES['ganti_gambar']['type'][$id_gambar],
                 'tmp_name' => $_FILES['ganti_gambar']['tmp_name'][$id_gambar],
                 'error'    => $_FILES['ganti_gambar']['error'][$id_gambar],
-                'size'     => $_FILES['ganti_gambar']['size'][$id_gambar],
+                'size'     => $_FILES['ganti_gambar']['size'][$id_gambar]
             ];
 
-            $config['upload_path']   = $folder;
-            $config['allowed_types'] = 'jpg|jpeg|png|gif';
-            $config['max_size']      = '5000';
-            $config['file_name']     = 'produk-' . $id_produk . '-' . $id_gambar . '-' . time();
+            $config = [
+                'upload_path'   => $folder,
+                'allowed_types' => 'jpg|jpeg|png|gif',
+                'max_size'      => 5000,
+                'file_name'     => 'produk-' . $id_produk . '-' . $id_gambar . '-' . time()
+            ];
+
             $this->upload->initialize($config);
 
             if ($this->upload->do_upload('file')) {
-                $file_baru = $this->upload->data('file_name');
-                $this->produk_gambar_model->ubah(['nama_gambar' => $file_baru], $id_gambar);
 
-                
-                $path_lama = './' . $folder . $gambar_lama['nama_gambar'];
+                $file_baru = $this->upload->data('file_name');
+
+                $this->produk_gambar_model->ubah(
+                    ['nama_gambar' => $file_baru],
+                    $id_gambar
+                );
+
+                $path_lama = $folder . $gambar_lama['nama_gambar'];
+
                 if (is_file($path_lama)) {
                     unlink($path_lama);
                 }
+
                 $hasil['berhasil']++;
+
             } else {
-                $hasil['errors'][] = $nama . ': ' . $this->upload->display_errors('', '');
+
+                $hasil['errors'][] = $nama . ': '
+                    . $this->upload->display_errors('', '');
             }
         }
 
         return $hasil;
     }
 
-        public function hapus_produk($id)
+    // Menghapus gambar produk
+    public function hapus_gambar($id)
     {
-        
-        $produk = $this->produk_model->get_by_id($id);
-        if ($produk) {
-            
-            $list_gambar = $this->produk_gambar_model->get_by_id_produk($id);
-            foreach ($list_gambar as $gambar) {
-                $id_gambar = $gambar['id_gambar'];
-                $nama_gambar = $gambar['nama_gambar'];
-                $this->produk_gambar_model->hapus($id_gambar);
-                $path = './uploads/produk/' . $nama_gambar;
-                unlink($path);
+        $gambar = $this->produk_gambar_model->get_by_id_produk($id);
+
+        if ($gambar) {
+
+            foreach ($gambar as $item) {
+
+                $path = './uploads/produk/' . $item['nama_gambar'];
+
+                if (is_file($path)) {
+                    unlink($path);
+                }
+
+                $this->produk_gambar_model->hapus($item['id_gambar']);
             }
-            
+
+            $this->session->set_flashdata(
+                'success',
+                'Gambar berhasil dihapus.'
+            );
+
+        } else {
+
+            $this->session->set_flashdata(
+                'error',
+                'Gambar tidak ditemukan.'
+            );
+        }
+
+        redirect('admin/produk/ubah/' . $id);
+    }
+
+    // Menghapus produk beserta seluruh gambarnya
+    public function hapus_produk($id)
+    {
+        $produk = $this->produk_model->get_by_id($id);
+
+        if ($produk) {
+
+            $list_gambar = $this->produk_gambar_model->get_by_id_produk($id);
+
+            if (!empty($list_gambar)) {
+
+                foreach ($list_gambar as $gambar) {
+
+                    $id_gambar = $gambar['id_gambar'];
+                    $nama_gambar = $gambar['nama_gambar'];
+
+                    $path = './uploads/produk/' . $nama_gambar;
+
+                    if (is_file($path)) {
+                        unlink($path);
+                    }
+
+                    $this->produk_gambar_model->hapus($id_gambar);
+                }
+            }
+
             $this->produk_model->hapus($id);
-            $this->session->set_flashdata('message', '
-            <div class="alert alert-success d-flex align-items-center alert-dismissible fade show" role="alert">
-                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
-                    <use xlink:href="#check-circle-fill" />
-                </svg>
-                <div>
-                    Berhasil menghapus produk!!
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            ');
-        redirect('admin/produk');
-    } else {
-        $this->session->set_flashdata('message', '
-        <div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert">
-            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
-                <use xlink:href="#exclamation-triangle-fill" />
-            </svg>
-            <div>
-                produk tidak ditemukan!!
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        ');
+
+            $this->session->set_flashdata(
+                'message',
+                '<div class="alert alert-success">
+                    Berhasil menghapus produk!
+                </div>'
+            );
+
+        } else {
+
+            $this->session->set_flashdata(
+                'message',
+                '<div class="alert alert-danger">
+                    Produk tidak ditemukan!
+                </div>'
+            );
+        }
+
         redirect('admin/produk');
     }
-}
-
 }

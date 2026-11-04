@@ -44,7 +44,6 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>ID Ekspedisi</th>
                                         <th>Nama Ekspedisi</th>
                                         <th>Jenis Layanan</th>
                                         <th>Tarif Per KG</th>
@@ -57,7 +56,6 @@
                                     foreach ($list_ekspedisi as $ekspedisi036) : ?>
                                         <tr>
                                             <td><?= $no ?></td>
-                                            <td><?= $ekspedisi036['id_ekspedisi036'] ?></td>
                                             <td><?= $ekspedisi036['nama_ekspedisi036'] ?></td>
                                             <td><?= $ekspedisi036['jenis_layanan036'] ?></td>
                                             <td><?= $ekspedisi036['tarif_perkg036'] ?></td>

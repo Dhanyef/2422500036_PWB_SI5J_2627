@@ -56,13 +56,8 @@ $route['admin'] = 'administrator/Admin_dashboard_controller/index';
 $route['admin/login'] = 'administrator/admin_auth_controller/index';
 $route['admin/logout'] = 'administrator/admin_auth_controller/logout';
 $route['admin/kategori'] = 'administrator/kategori_controller/index';
-$route['admin/ekspedisi036'] = 'administrator/ekspedisi_controller036/index';
 $route['admin/kategori/tambah'] = 'administrator/kategori_controller/tambah_kategori';
-$route['admin/ekspedisi036/tambah'] = 'administrator/ekspedisi_controller036/tambah_ekspedisi';
 $route['admin/produk/hapus_gambar/(:num)'] = 'administrator/Produk_controller/hapus_gambar/$1';
-$route['admin/kategori/ubah/(:num)'] = 'administrator/kategori_controller/ubah_kategori/$1';
-$route['admin/ekspedisi036/ubah/(:num)'] = 'administrator/ekspedisi_controller036/ubah_ekspedisi/$1';
-$route['admin/ekspedisi036/hapus/(:num)'] = 'administrator/ekspedisi_controller036/hapus_ekspedisi/$1';
 
 
 #produk
@@ -72,3 +67,8 @@ $route['admin/produk/ubah/(:num)'] = 'administrator/Produk_controller/ubah_produ
    ;
 $route['admin/produk/hapus/(:num)'] = 'administrator/Produk_controller/hapus_produk/$1';
 
+$route['admin/ekspedisi036'] = 'administrator/Ekspedisi_controller036/index';
+$route['admin/ekspedisi036/tambah'] = 'administrator/Ekspedisi_controller036/tambah_ekspedisi';
+$route['admin/kategori/ubah/(:num)'] = 'administrator/kategori_controller/ubah_kategori/$1';
+$route['admin/ekspedisi036/ubah/(:num)'] = 'administrator/Ekspedisi_controller036/ubah_ekspedisi/$1';
+$route['admin/ekspedisi036/hapus/(:num)'] = 'administrator/Ekspedisi_controller036/hapus_ekspedisi/$1';
