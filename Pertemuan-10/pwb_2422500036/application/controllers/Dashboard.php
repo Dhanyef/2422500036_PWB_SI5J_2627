@@ -13,7 +13,7 @@ class Dashboard extends CI_Controller {
     public function index()
     {
         $data['gambar_model'] = $this->produk_gambar_model;
-        $data['list_produk'] = $this->produk_model->get_all();
+        $data['list_produk'] = $this->produk_model->get_all_produk();
         $this->load->view('ecom/template/header', $data);
         $this->load->view('ecom/template/carausel');
         $this->load->view('ecom/home', $data);

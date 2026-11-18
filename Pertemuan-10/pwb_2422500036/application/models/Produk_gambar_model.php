@@ -14,8 +14,12 @@ class Produk_gambar_model extends CI_Model
     public function get_by_id_produk($id)
     {
         $this->db->where('id_produk', $id);
-        $query = $this->db->get($this->_table);
-        return $query->result_array();
+        $query = $this->db->get($this->_table)->result_array();
+if (empty($query)) {
+    return [['id_gambar' => null, 'nama_gambar' => 'produk-1-0.jpeg']];
+}
+
+        return $query;
     }
 
     public function get_by_id($id_gambar)

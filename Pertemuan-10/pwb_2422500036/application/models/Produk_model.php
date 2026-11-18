@@ -5,7 +5,7 @@ class Produk_model extends CI_Model
 {
     private $_table = "produk";
 
-    public function get_all()
+    public function get_all_produk()
     {
         $this->db->select('
             produk.id_produk, 
